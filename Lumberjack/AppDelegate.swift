@@ -7,6 +7,48 @@
 //
 
 import UIKit
+import CocoaLumberjack
+import LogKit
+
+func testLogging() {
+    log.debug("LogKit debug")
+    log.info("LogKit info")
+    log.notice("LogKit notice")
+    log.warning("LogKit warning")
+    log.error("LogKit error")
+    log.critical("LogKit critical")
+    DDLogDebug("CocoaLumberjack debug")
+    DDLogInfo("CocoaLumberjack info")
+    DDLogVerbose("CocoaLumberjack notice")
+    DDLogWarn("CocoaLumberjack warning")
+    DDLogError("CocoaLumberjack error")
+}
+
+
+let ddloglevel = DDLogLevel.Verbose
+
+let log = LXLogger(endpoints: [
+    
+    LXConsoleEndpoint(
+        synchronous: true,
+        dateFormatter: LXDateFormatter.timeOnlyFormatter(),
+        entryFormatter: LXEntryFormatter({ entry in
+            return "\(entry.dateTime)[\(entry.fileName):\(entry.lineNumber)] " +
+            "\(entry.level.uppercaseString)::\(entry.message)"
+        })
+    ),
+    
+    ])
+
+
+func setupLoggers() {
+    let asLogger = DDASLLogger.sharedInstance()
+    asLogger.logFormatter = LogFormatter()
+    DDLog.addLogger(asLogger)
+    let ttyLogger = DDTTYLogger.sharedInstance()
+    ttyLogger.logFormatter = LogFormatter()
+    DDLog.addLogger(ttyLogger)
+}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +58,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        setupLoggers()
+        testLogging()
         return true
     }
 
